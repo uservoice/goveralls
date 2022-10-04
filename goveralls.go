@@ -98,7 +98,7 @@ type SourceFile struct {
 // A Job represents the coverage data from a single run of a test suite.
 type Job struct {
 	RepoToken          *string       `json:"repo_token,omitempty"`
-	ServiceJobID       string        `json:"service_job_id"`
+	ServiceJobID       string        `json:"service_number"`
 	ServiceJobNumber   string        `json:"service_job_number,omitempty"`
 	ServicePullRequest string        `json:"service_pull_request,omitempty"`
 	ServiceName        string        `json:"service_name"`
@@ -239,16 +239,8 @@ func getCoverallsSourceFileName(name string) string {
 // processParallelFinish notifies coveralls that all jobs are completed
 // ref. https://docs.coveralls.io/parallel-build-webhook
 func processParallelFinish(jobID, token string) error {
-	var name string
-	if reponame != nil && *reponame != "" {
-		name = *reponame
-	} else if s := os.Getenv("GITHUB_REPOSITORY"); s != "" {
-		name = s
-	}
-
 	params := make(url.Values)
 	params.Set("repo_token", token)
-	params.Set("repo_name", name)
 	params.Set("payload[build_num]", jobID)
 	params.Set("payload[status]", "done")
 	res, err := http.PostForm(*endpoint+"/webhook", params)
